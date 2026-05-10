@@ -436,9 +436,15 @@ Harness engineering depends on **executable specs**. Active competing approaches
 
 **Open question**: is spec authoring the **new core skill** of the programmer? Hashimoto, Klaassen, and the spec-driven community say yes. Karpathy emphasizes generator-verifier loops without formal spec authoring. No consensus has emerged; Huntley himself admitted that natural-language `specs/*.md` were a recurring source of subtle bugs (a duplicated keyword in a lexer spec wasted weeks in his CURSED compiler project).
 
+**The deeper trap**: a fully deterministic spec is code in another syntax. Microsoft Research [\[59\]](#ref-59) shows that natural-language intent is *"challenging to check programmatically"* precisely because of inherent ambiguity — the canonical HumanEval *remove duplicates* example demonstrates that the docstring fails to disambiguate "remove one copy" vs "remove all duplicates" until someone formalizes it (at which point they are programming). Vaithilingam et al. [\[60\]](#ref-60) frame this as the missing engineering discipline of LLM systems: natural-language prompts encourage "ambiguous, ill-defined tasks" by default. The dichotomy Karpathy poses between spec-writing and **generator-verifier loops** [\[61\]](#ref-61) — *"it's really hard to generate a correct solution, but it's much easier to recognize when you have one"* — is the live debate; Stanford's work on the verification gap [\[62\]](#ref-62) and the verification-ceiling problem [\[63\]](#ref-63) are extending it formally.
+
+**The formal regime is democratizing**: a counterweight to the natural-language trap is the rapid LLM-assistance of formal-specification languages. arXiv:2501.16207 [\[64\]](#ref-64) released 18k instruction-response pairs across **Coq, Lean4, Dafny, ACSL, and TLA+** specifically for coding tasks; a 2025 survey [\[65\]](#ref-65) catalogs the open challenges in NL-to-formal translation. AlphaProof / AlphaGeometry / DeepSeek-Prover-V2 / Goedel-Code-Prover [\[66\]](#ref-66) reach IMO silver-gold in Lean; CompCert [\[67\]](#ref-67) remains the canonical demonstration that formally-verified components stay bug-free where unverified compilers do not. Lean Copilot [\[52\]](#ref-52) brings the workflow to mainstream developers. The plausible outcome is not "specs win" or "specs lose" but a **bifurcation by domain**: a formal regime (compilers, kernels, financial settlement, safety-critical) where LLM-assisted Lean / Coq / Dafny becomes accessible, and a probabilistic regime (most application code) where natural-language guardrails plus generator-verifier loops dominate.
+
 ### The training-curriculum gap
 
-Hashimoto's question: if junior developers learn to be senior developers by writing code, and agents now write the code, **where does the next generation of senior developers come from?** No one has a curriculum for harness engineering. The traditional path of learning-by-coding may be partially foreclosed by the tools themselves. Hashimoto's bridge proposal is *do the work twice* (manual then agentic) during onboarding. CS programs (MIT, Stanford, CMU) by 2026 incorporate AI-assisted coding from first courses while also enforcing no-AI rotations. Empirical evidence on outcomes is too early to read.
+Hashimoto's question: if junior developers learn to be senior developers by writing code, and agents now write the code, **where does the next generation of senior developers come from?** No one has a curriculum for harness engineering. The traditional path of learning-by-coding may be partially foreclosed by the tools themselves. Hashimoto's bridge proposal is *do the work twice* (manual then agentic) during onboarding. CS programs (MIT, Stanford, CMU) by 2026 incorporate AI-assisted coding from first courses while also enforcing no-AI rotations.
+
+**Empirical evidence is now in, and it is sobering.** Stanford Digital Economy Lab's *Canaries in the Coal Mine* (Brynjolfsson, Chandar et al., August 2025) [\[68\]](#ref-68) documents a **13% relative decline in employment for workers aged 22–25 in AI-exposed occupations** since late 2022, and specifically **20% fewer entry-level software developer jobs**. Workers aged 30+ in the same fields *grew* employment by 6–12%. The mechanism Stanford proposes: AI substitutes for *"codified knowledge"* but not the *"tacit, hard-earned knowledge that comes only from years on the job"* — exactly the paradox Hashimoto raised, now with a number. IT Revolution's *The Great Developer Divide* (February 2026) [\[69\]](#ref-69) and Spair's *AI as a Force Multiplier* (September 2025) [\[70\]](#ref-70) frame the broader market as splitting into a hybrid middle (AI-fluent senior, growing) and an automatable tail (entry-level, shrinking) — a bifurcation that maps onto the formal-vs-probabilistic regime split discussed under [The spec problem](#the-spec-problem).
 
 ### The code review crisis
 
@@ -658,6 +664,30 @@ For someone catching up, in approximately this order:
 <a id="ref-57"></a>**[57]** Yu, W., Liang, Z., Huang, C., Panaganti, K., Fang, T., Mi, H., Yu, D. *"Guided Self-Evolving LLMs with Minimal Human Supervision (R-Few)."* arXiv:2512.02472, 2 December 2025. Tencent AI Lab Seattle + Washington University in St. Louis. <https://arxiv.org/abs/2512.02472>
 
 <a id="ref-58"></a>**[58]** Zhu, X., Cai, Y., Liu, Z. et al. *"EvoMaster: A Foundational Evolving Agent Framework for Agentic Science at Scale."* arXiv:2604.17406, 19 April 2026 (v1), 21 April 2026 (v2). <https://arxiv.org/abs/2604.17406>
+
+<a id="ref-59"></a>**[59]** Endres, M., Fakhoury, S., Chakraborty, S., Lahiri, S. K. *"Formalizing Natural Language Intent into Program Specifications via Large Language Models."* arXiv:2310.01831, October 2023. Microsoft Research. <https://arxiv.org/abs/2310.01831>
+
+<a id="ref-60"></a>**[60]** Vaithilingam, P., Glassman, E. L., Inala, J. P., Wang, C. *"Specifications: The missing link to making the development of LLM systems an engineering discipline."* arXiv:2412.05299, December 2024. <https://arxiv.org/abs/2412.05299>
+
+<a id="ref-61"></a>**[61]** Karpathy, A. *"Generator-verifier gap"* framing — public talks and tweets, 2024–2025. Quoted from Y Combinator AI Startup School, June 2025.
+
+<a id="ref-62"></a>**[62]** Saad-Falcon, J. et al. *"Shrinking the Generation-Verification Gap with Weak Verifiers."* arXiv:2506.18203, June 2025. Stanford. <https://arxiv.org/abs/2506.18203>
+
+<a id="ref-63"></a>**[63]** *"Verification Limits Code LLM Training."* arXiv:2509.20837, September 2025. <https://arxiv.org/abs/2509.20837>
+
+<a id="ref-64"></a>**[64]** *"From Informal to Formal — Incorporating and Evaluating LLMs on Natural Language Requirements to Verifiable Formal Proofs."* arXiv:2501.16207, January 2025. 18k instruction-response pairs across Coq, Lean4, Dafny, ACSL, and TLA+. <https://arxiv.org/abs/2501.16207>
+
+<a id="ref-65"></a>**[65]** *"Leveraging LLMs for Formal Software Requirements: Challenges and Prospects."* arXiv:2507.14330, July 2025. <https://arxiv.org/abs/2507.14330>
+
+<a id="ref-66"></a>**[66]** *"Goedel-Code-Prover."* arXiv:2603.19329, March 2026. <https://arxiv.org/abs/2603.19329>
+
+<a id="ref-67"></a>**[67]** *"Formally Verified Compilers in the LLM Era."* arXiv:2410.19940, October 2024 (ICSE 2026). On CompCert and bug-presence comparisons. <https://arxiv.org/abs/2410.19940>
+
+<a id="ref-68"></a>**[68]** Brynjolfsson, E., Chandar, B. et al. *"Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence."* Stanford Digital Economy Lab, August 2025. <https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/>
+
+<a id="ref-69"></a>**[69]** IT Revolution. *"The Great Developer Divide: How AI Is Reshaping the Software Job Market Into Three Tiers."* February 2026. <https://itrevolution.com/articles/the-great-developer-divide/>
+
+<a id="ref-70"></a>**[70]** Spair, R. *"AI as a Force Multiplier: The Great Bifurcation."* September 2025.
 
 ### Additional reading (not directly cited)
 
