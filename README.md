@@ -34,6 +34,24 @@ This document traces the evolution of AI-assisted coding agents from the launch 
 
 A note on framing: the dominant narrative in 2026 commentary is **"structure around the model matters more than cleverness inside the model."** This is a useful heuristic and the throughline of this document — but the strong version is empirically false. Model jumps (Opus 4.5 → 4.7, GPT-5 → 5.4, GLM-5 → 5.1) deliver double-digit benchmark gains with the harness held fixed, just as harness improvements deliver them with the model fixed. The honest position is that **model and harness are partial substitutes in the capability space; both matter, and the interesting question is how marginal returns reallocate as each side improves**. We try to flag where the document leans toward the structuralist thesis so readers can calibrate.
 
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#f5f5f4','primaryTextColor':'#1c1917','primaryBorderColor':'#a8a29e','lineColor':'#78716c','fontFamily':'ui-sans-serif'}}}%%
+timeline
+    title Coding agents — six eras at a glance
+    2021–2022 : Era 1 · Prompt as Oracle
+              : Copilot, Codex
+    2022–2023 : Era 2 · Program-as-Output
+              : PAL, PoT, Toolformer, DSPy
+    2023–2025 : Era 3 · Conversational pair-programming
+              : Cursor, Devin, SWE-Bench, vibe coding
+    mid-2025  : Era 4 · Outer Loop Awakening
+              : Claude Code, Ralph Wiggum, Aider/OpenHands
+    late-2025 : Era 5 · Structured Workflows
+              : 12-Factor Agents, RPI, Effective Harnesses
+    2026      : Era 6 · Harness Engineering
+              : Agent = Model + Harness · NLAH · AHE · Meta-Harness
+```
+
 ---
 
 ## Conceptual frame: three orthogonal axes
@@ -45,6 +63,23 @@ Before diving into eras, it helps to recognize that "coding agents" evolve along
 | **Autonomy** | autocomplete → IDE pair → CLI agent → unattended fleet |
 | **Training** | prompted → fine-tuned → RL-from-execution → self-play |
 | **Harness** | none → manual prompts → structured workflow → self-evolving |
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#ecfccb','primaryTextColor':'#1c1917','primaryBorderColor':'#a3a3a3','lineColor':'#525252','clusterBkg':'#fafaf9','clusterBorder':'#d6d3d1','fontFamily':'ui-sans-serif'}}}%%
+flowchart LR
+    subgraph A[Autonomy]
+        direction LR
+        a1[autocomplete] --> a2[IDE pair] --> a3[CLI agent] --> a4[unattended fleet]
+    end
+    subgraph T[Training]
+        direction LR
+        t1[prompted] --> t2[fine-tuned] --> t3[RL-from-execution] --> t4[self-play]
+    end
+    subgraph H[Harness]
+        direction LR
+        h1[none] --> h2[manual prompts] --> h3[structured workflow] --> h4[self-evolving]
+    end
+```
 
 The "eras" below are diagonal trajectories through this cube, not points on a line. Cursor (2023) and Claude Code (2025) coexist; Aider, OpenHands, and Codex CLI evolve in parallel. The taxonomy is a narrative simplification, useful but opinionated. See [Era 6.7](#67-critique-of-the-paradigm) for the serious counterarguments.
 
@@ -179,6 +214,27 @@ In practice, Ralph used multiple persistent markdown artifacts as state across i
 
 And explicit phases: **generate → backpressure (test/build) → planning** — with subagents acting as a scheduler to preserve the primary context window's allocation. Huntley estimated useful context window at roughly 170k tokens against an advertised 200k, and treated context as a strict budget rather than free space.
 
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#fee2e2','primaryTextColor':'#1c1917','primaryBorderColor':'#d6d3d1','lineColor':'#78716c','fontFamily':'ui-sans-serif'}}}%%
+flowchart LR
+    PROMPT[("PROMPT.md")]
+    SPECS[("specs/*.md")]
+    PLAN[("fix_plan.md")]
+    AGENT[("AGENT.md")]
+
+    PROMPT --> GEN[Generate<br/>claude-code]
+    SPECS --> GEN
+    PLAN --> GEN
+    AGENT --> GEN
+
+    GEN --> TEST{Backpressure<br/>test · build}
+    TEST -- pass --> NEXT[Next iteration]
+    TEST -- fail --> PLANNER[Planner sub-agent]
+    PLANNER --> PLAN
+    GEN -. learns .-> AGENT
+    NEXT --> GEN
+```
+
 Boris Cherny, creator of Claude Code at Anthropic, later distilled the underlying lesson into his single most important rule, in his X thread of 2 January 2026 [\[25\]](#ref-25):
 
 > A final tip: probably the most important thing to get great results out of Claude Code — give Claude a way to verify its work. If Claude has that feedback loop, it will 2–3x the quality of the final result.
@@ -211,6 +267,27 @@ If you know the workflow, hardcode it. Reserve the model only for parts requirin
 ### 5.2 RPI methodology
 
 Horthy and HumanLayer also developed the **RPI methodology** (Research → Plan → Implement) as a more structured response to Ralph's bash-loop approach. Each phase produces persistent artifacts (markdowns) with human checkpoints between them. The methodology later evolved to seven phases (Questions, Research, Design, Structure, Plan, Worktree, Implement), each constrained to under 40 instructions per phase. This evolution reflects the recurring lesson that more complex work demands finer-grained pipelines.
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#dbeafe','primaryTextColor':'#1c1917','primaryBorderColor':'#93c5fd','lineColor':'#3b82f6','fontFamily':'ui-sans-serif'}}}%%
+flowchart LR
+    Q[Questions]:::phase --> R[Research]:::phase --> D[Design]:::phase --> S[Structure]:::phase --> P[Plan]:::phase --> W[Worktree]:::phase --> I[Implement]:::phase
+
+    R -. artifact .-> RA[("research.md")]:::art
+    D -. artifact .-> DA[("design.md")]:::art
+    P -. artifact .-> PA[("plan.md")]:::art
+    I -. artifact .-> IA[("diff / PR")]:::art
+
+    Q -.->|human ✓| R
+    R -.->|human ✓| D
+    D -.->|human ✓| S
+    S -.->|human ✓| P
+    P -.->|human ✓| W
+    W -.->|human ✓| I
+
+    classDef phase fill:#dbeafe,stroke:#60a5fa,color:#1c1917
+    classDef art fill:#fef3c7,stroke:#fbbf24,color:#1c1917
+```
 
 Horthy's published critique of the official Anthropic Ralph plugin captured the underlying philosophy [\[24\]](#ref-24):
 
@@ -278,6 +355,16 @@ By mid-2026, a tidy taxonomy had stabilized:
 
 The first two layers shape a single turn. Harness engineering shapes the system across turns, sessions, and even teams.
 
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#e0e7ff','primaryTextColor':'#1c1917','primaryBorderColor':'#a5b4fc','lineColor':'#6366f1','fontFamily':'ui-sans-serif'}}}%%
+flowchart TB
+    H["<b>Harness engineering</b><br/><i>execution environment · across turns, sessions, teams</i><br/>hooks · sub-agents · tools · skills · MCPs"]
+    C["<b>Context engineering</b><br/><i>what the model sees · this turn</i><br/>retrieval · CLAUDE.md · compaction"]
+    P["<b>Prompt engineering</b><br/><i>what you say · this turn</i><br/>instructions · examples · format"]
+    M(["Model · single turn"])
+    H --> C --> P --> M
+```
+
 Note that HumanLayer frames harness engineering as a *subset* of context engineering — specifically, the part that leverages harness configuration points to manage context windows. Hashimoto and OpenAI frame it more broadly as the entire environment around the model. Both framings coexist in the literature.
 
 ### 6.3 Canonical primitives of a coding-agent harness
@@ -289,6 +376,44 @@ As of mid-2026, the field generally agrees on five canonical configuration surfa
 3. **Context** — what the agent *sees* (skills, retrieved docs, persistent files like `CLAUDE.md` / `AGENTS.md`, conversation history).
 4. **Sub-agents** — what can be *delegated* to workers with independent context windows. HumanLayer describes sub-agents as a "context firewall" that prevents intermediate noise from accumulating in the parent thread.
 5. **Hooks** — deterministic code running before/after tool calls for enforcement, formatting, validation.
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#fef3c7','primaryTextColor':'#1c1917','primaryBorderColor':'#d6d3d1','lineColor':'#78716c','clusterBkg':'#fafaf9','clusterBorder':'#d6d3d1','fontFamily':'ui-sans-serif'}}}%%
+flowchart TB
+    USER(["Developer"])
+
+    subgraph HARNESS["Harness · execution environment"]
+        direction TB
+        SP["System prompt<br/><i>identity, rules</i>"]
+        CTX["Context<br/><i>CLAUDE.md, AGENTS.md,<br/>skills, retrieved docs</i>"]
+
+        subgraph LOOP["Outer loop"]
+            direction LR
+            MODEL(["LLM<br/>Claude · GPT · Gemini"])
+            HOOKS["Hooks<br/>Pre/Post tool · Stop"]
+            MODEL <--> HOOKS
+        end
+
+        subgraph TOOLS["Tools / MCPs"]
+            direction LR
+            FS["Filesystem"]
+            SH["Shell"]
+            GIT["Git"]
+            MCP["MCP servers<br/>(external APIs)"]
+        end
+
+        SUB["Sub-agents<br/><i>independent context windows<br/>= context firewall</i>"]
+    end
+
+    USER --> LOOP
+    SP --> LOOP
+    CTX --> LOOP
+    LOOP <--> TOOLS
+    LOOP --> SUB
+    SUB -. summary .-> LOOP
+    TOOLS --> VERIFY{{"Verifier<br/>tests · build · lint · CI"}}
+    VERIFY -- feedback --> LOOP
+```
 
 OpenAI's Lopopolo post adds a complementary three-pillar framing — **Constraints, Observability, Feedback Loops** — which maps cleanly onto Böckeler's cybernetic governor (feedforward via prompts/tools/skills; feedback via tests/CI/traces).
 
@@ -317,6 +442,22 @@ Three papers crystallize the state of the art:
 - **AutoHarness** (Lou et al., arXiv:2603.03329, March 2026) [\[41\]](#ref-41). Gemini-2.5-Flash auto-synthesizes a harness that prevents illegal moves across 145 TextArena games. The *smaller* model with the synthesized harness outperforms Gemini-2.5-Pro raw — a clean instance of harness substituting for capability.
 
 Stanford IRIS Lab's **Meta-Harness** (March 2026) and Tencent's **Self-Play SWE-RL** (arXiv:2512.18552, December 2025) [\[42\]](#ref-42) extend the same theme: the harness is becoming an **optimization target**, not a manual artifact. NLAH's separation of harness logic from runtime, AHE's closed observability loop, and Meta-Harness's end-to-end optimization are three different attacks on the same problem — **how do we make harness engineering itself automatable?**
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#dcfce7','primaryTextColor':'#1c1917','primaryBorderColor':'#86efac','lineColor':'#16a34a','fontFamily':'ui-sans-serif'}}}%%
+flowchart LR
+    SEED["Seed harness<br/><i>bash-only, 69.7%</i>"] --> RUN[/"Run on<br/>Terminal-Bench 2.0"/]
+    RUN --> OBS{{"Observability — 3 pillars"}}
+    OBS --> P1["Component<br/><i>logs, metrics</i>"]
+    OBS --> P2["Experience<br/><i>traces, replays</i>"]
+    OBS --> P3["Decision<br/><i>which step, why</i>"]
+    P1 --> ANAL[Analyzer]
+    P2 --> ANAL
+    P3 --> ANAL
+    ANAL --> EVOLVE["Evolve harness<br/><i>edit instructions, hooks, sub-agents</i>"]
+    EVOLVE --> RUN
+    RUN -.->|"10 iterations · ~32h"| OUT["77.0% pass@1<br/>+7.3pp vs seed<br/>transfers across model families"]
+```
 
 ### 6.6 New failure modes documented
 
@@ -494,6 +635,56 @@ Each era can be described by where the intelligence of the system is taken to re
 | 5 — Structured workflow (RPI / 12-factor) | In the workflow with persistent artifacts |
 | 6 — Harness | In the harness as designed system |
 | Future (RL co-design) | Partially absorbed back into model weights via post-training on harness |
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#fae8ff','primaryTextColor':'#1c1917','primaryBorderColor':'#d8b4fe','lineColor':'#a855f7','clusterBkg':'#fafaf9','clusterBorder':'#d6d3d1','fontFamily':'ui-sans-serif'}}}%%
+flowchart LR
+    subgraph e1["Era 1 · Oracle"]
+        direction TB
+        p1["<b>PROMPT</b>"]:::big
+        m1[("model")]:::small
+        p1 --> m1
+    end
+    subgraph e2["Era 2 · Program"]
+        direction TB
+        m2[("model")]:::small
+        prog2["<b>PROGRAM</b>"]:::big
+        m2 --> prog2
+    end
+    subgraph e4["Era 4 · Outer loop"]
+        direction TB
+        l4["<b>LOOP</b>"]:::big
+        m4[("model")]:::small
+        l4 --> m4 --> l4
+    end
+    subgraph e5["Era 5 · Workflow"]
+        direction TB
+        wf5["<b>WORKFLOW</b>"]:::big
+        m5[("model")]:::small
+        art5[("artifacts")]
+        wf5 --> m5 & art5
+        m5 --> art5
+    end
+    subgraph e6["Era 6 · Harness"]
+        direction TB
+        h6["<b>HARNESS</b>"]:::big
+        m6[("model")]:::small
+        ctx6[(context)]
+        tools6[(tools)]
+        hooks6[(hooks)]
+        h6 --> ctx6 & tools6 & hooks6 & m6
+        m6 --> h6
+    end
+    subgraph eF["Future · co-design"]
+        direction TB
+        co["<b>HARNESS ⇄ MODEL</b><br/><i>post-trained on harness</i>"]:::big
+    end
+
+    e1 -. "intelligence migrates outward" .-> e2 -.-> e4 -.-> e5 -.-> e6 -.-> eF
+
+    classDef big fill:#a855f7,stroke:#7e22ce,color:#fff,font-weight:bold
+    classDef small fill:#fafaf9,stroke:#a3a3a3,color:#525252
+```
 
 The throughline: the industry kept rediscovering that **deterministic structure around the model matters** — but the 2025–2026 evidence equally shows that **model improvements matter just as much**, and that **the boundary between them is dissolving** as models are post-trained on their harnesses. The interesting engineering question is no longer "what should the model do?" or "what should the harness do?" but **"how should they be co-designed?"**
 
